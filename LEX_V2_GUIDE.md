@@ -13,7 +13,9 @@ Esta guía te llevará paso a paso a través de la creación de un bot de Amazon
 
 ## Bloque 1: Configuración de Amazon Lex (NLU principal)
 
-### 1. Crear el Bot
+### 1. Crear el Bot con IA Generativa
+
+Este método utiliza IA para generar automáticamente los intents y slots a partir de una descripción en lenguaje natural.
 
 1.  **Abrir la consola de Amazon Lex:**
     *   Ve a la [consola de AWS](https://console.aws.amazon.com/) y busca "Lex".
@@ -21,88 +23,72 @@ Esta guía te llevará paso a paso a través de la creación de un bot de Amazon
     *   Haz clic en **"Create bot"**.
 
 2.  **Método de creación:**
-    *   Selecciona **"Create a blank bot"**.
-    *   **Bot name:** `MiChatbot` (o el nombre que prefieras).
-    *   **IAM permissions:** Selecciona **"Create a role with basic Amazon Lex permissions"**. AWS creará automáticamente un rol de IAM con los permisos necesarios.
-    *   **Children's Online Privacy Protection Act (COPPA):** Selecciona **"No"** si tu bot no está dirigido a niños menores de 13 años.
-    *   **Idle session timeout:** Deja el valor predeterminado de 5 minutos.
+    *   Selecciona la pestaña **"Generative AI"**.
+    *   **Describa el bot que desea crear:** Aquí es donde escribes el "prompt" para la IA. Sé claro y específico.
+
+    > **Ejemplo de Prompt para tu caso de uso:**
+    > ```
+    > Crea un bot en español para un consultorio que permita a los pacientes agendar, cancelar y consultar el estado de sus citas.
+    > Para agendar una cita, necesitas recopilar el tipo de servicio (consulta general, limpieza dental, examen de la vista), la fecha y la hora.
+    > El bot también debe poder saludar al usuario y despedirse amablemente.
+    > ```
+
+    *   **Configuración de bots:**
+        *   **Nombre del bot:** `MiChatbot` (o el nombre que prefieras).
+        *   **IAM permissions:** Selecciona **"Create a role with basic Amazon Lex permissions"**.
+        *   **Children's Online Privacy Protection Act (COPPA):** Selecciona **"No"**.
+        *   **Idle session timeout:** Deja el valor predeterminado de 5 minutos.
     *   Haz clic en **"Next"**.
 
 3.  **Añadir idiomas:**
-    *   **Language:** Selecciona **"Spanish (ES)"** como idioma principal.
-    *   **Voice:** Puedes dejar la voz predeterminada o seleccionar la que prefieras.
+    *   **Language:** El idioma principal será el del prompt (Español). Puedes añadir más idiomas aquí.
     *   Haz clic en **"Add another language"** y añade **"English (US)"** y **"Portuguese (BR)"**.
     *   Haz clic en **"Done"**.
 
-### 2. Crear 5 Intents
+Lex procesará tu solicitud y generará una estructura de bot. Esto puede tardar unos minutos.
 
-Crearemos 5 intents de ejemplo. Puedes adaptarlos a las necesidades de tu proyecto.
+### 2. Revisar y Refinar los Intents Generados
 
-1.  **`Bienvenida`**: Para saludar al usuario.
-2.  **`ReservarCita`**: Para agendar una cita.
-3.  **`CancelarCita`**: Para cancelar una cita.
-4.  **`ConsultarEstadoCita`**: Para verificar el estado de una cita.
-5.  **`Despedida`**: Para finalizar la conversación.
+Una vez que Lex termine, verás una lista de intents que la IA ha creado para ti, basados en tu descripción. Por ejemplo, podrías ver:
 
-#### 2.1. Crear el Intent `Bienvenida`
+*   `Bienvenida`
+*   `ReservarCita`
+*   `CancelarCita`
+*   `ConsultarEstadoCita`
+*   `Despedida`
 
-1.  En el menú de la izquierda, ve a **"Intents"**.
-2.  Haz clic en **"Add intent"** -> **"Add empty intent"**.
-3.  **Intent name:** `Bienvenida`
-4.  **Sample utterances:**
-    *   `Hola`
-    *   `Buenos días`
-    *   `Buenas tardes`
-    *   `Hey`
-5.  **Initial response:**
-    *   Activa la respuesta inicial.
-    *   **Message:** `¡Hola! ¿En qué puedo ayudarte hoy?`
-6.  Haz clic en **"Save intent"**.
+**Tu siguiente tarea es revisar este trabajo inicial:**
 
-#### 2.2. Crear el Intent `ReservarCita`
+1.  **Explora cada intent:** Haz clic en cada intent generado.
+2.  **Verifica los slots:** Revisa si los slots (ej. `TipoServicio`, `FechaCita`, `HoraCita`) se crearon correctamente dentro del intent `ReservarCita` y si tienen el tipo de slot adecuado.
+3.  **Ajusta las frases de ejemplo (utterances):** La IA habrá generado algunas, pero puedes añadir más para mejorar la precisión del bot.
+4.  **Configura las respuestas:** Revisa y edita los mensajes de confirmación y las preguntas (prompts) para los slots.
 
-1.  **"Add intent"** -> **"Add empty intent"**.
-2.  **Intent name:** `ReservarCita`
-3.  **Sample utterances:**
-    *   `Quiero reservar una cita`
-    *   `Necesito una cita`
-    *   `Agendar una cita`
-4.  Haz clic en **"Save intent"**.
+Una vez que hayas revisado y ajustado la estructura base generada por la IA, puedes continuar con los siguientes pasos de esta guía (Crear Slots personalizados si es necesario, Validaciones, Contexto, etc.) para añadir la lógica avanzada a tu bot.
 
-#### 2.3. Crear los Intents `CancelarCita`, `ConsultarEstadoCita` y `Despedida`
+### 3. Revisar y Personalizar Slots
 
-Repite el proceso anterior para los intents restantes, añadiendo algunas utterances de ejemplo para cada uno.
+Dado que usamos la IA generativa con un prompt detallado, es muy probable que Lex ya haya creado los slots `FechaCita`, `HoraCita` y `TipoServicio` dentro del intent `ReservarCita`. Tu tarea ahora es revisar que estén correctos y personalizarlos.
 
-### 3. Crear Slots
+1.  **Navega al Intent `ReservarCita`:** En el menú de la izquierda, selecciona el intent `ReservarCita`.
+2.  **Encuentra la sección "Slots":** Desplázate hacia abajo hasta que veas la lista de slots que la IA generó.
 
-Ahora, vamos a añadir slots al intent `ReservarCita` para recopilar la información necesaria.
+#### 3.1. Revisar los Slots Existentes
 
-1.  Ve al intent `ReservarCita`.
-2.  En la sección **"Slots"**, haz clic en **"Add slot"**.
+Para cada slot (ej. `FechaCita`, `HoraCita`):
+*   **Verifica el "Slot type":** Asegúrate de que Lex haya asignado el tipo correcto. Debería ser `AMAZON.Date` para la fecha y `AMAZON.Time` para la hora.
+*   **Personaliza los "Prompts":** Haz clic en el nombre del slot para editarlo. Busca la sección de "Prompts" y ajusta la pregunta si quieres que suene más natural para tu negocio. Por ejemplo, en lugar de `¿A qué hora?`, podrías poner `Perfecto, ¿a qué hora te viene bien?`.
 
-#### 3.1. Slot `FechaCita`
+#### 3.2. Personalizar el Slot Type `TipoServicio`
 
-*   **Name:** `FechaCita`
-*   **Slot type:** `AMAZON.Date`
-*   **Prompts:** `¿Para qué fecha deseas la cita?`
+El slot `TipoServicio` es especial porque es un tipo de slot personalizado (`Custom`).
 
-#### 3.2. Slot `HoraCita`
+1.  **Encuentra el Slot Type:** En el menú de la izquierda, en la sección **"Slot types"**, deberías ver uno nuevo que la IA ha creado (podría llamarse `TiposDeServicio` o algo similar).
+2.  **Edita los valores:** Haz clic en él. Verás los valores que la IA extrajo de tu prompt (`Consulta general`, `Limpieza dental`, etc.).
+3.  **Añade o quita valores:** Puedes añadir más servicios que ofrezcas o eliminar los que no correspondan.
+4.  **Guarda los cambios:** Haz clic en **"Save slot type"**.
 
-*   **Name:** `HoraCita`
-*   **Slot type:** `AMAZON.Time`
-*   **Prompts:** `¿A qué hora?`
-
-#### 3.3. Slot `TipoServicio`
-
-*   **Name:** `TipoServicio`
-*   **Slot type:** `Custom` -> **"Create a new slot type"**
-    *   **Slot type name:** `TiposDeServicio`
-    *   **Slot type values:**
-        *   `Consulta general`
-        *   `Limpieza dental`
-        *   `Examen de la vista`
-    *   Haz clic en **"Save slot type"**.
-*   **Prompts:** `¿Qué tipo de servicio necesitas?`
+Este proceso de **revisión y ajuste** es clave cuando se trabaja con IA generativa. La IA hace el trabajo pesado inicial, y tú te encargas de refinar los detalles.
 
 ### 4. Crear Validaciones Personalizadas
 
