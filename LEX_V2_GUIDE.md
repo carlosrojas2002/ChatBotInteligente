@@ -1,10 +1,10 @@
-# Guía Detallada para Construir un Bot de Amazon Lex V2 (Método Tradicional)
+# Guía Detallada para Construir un Bot de Amazon Lex V2 (Método Tradicional - Cafetería)
 
-Esta guía te llevará paso a paso a través de la creación de un bot de Amazon Lex V2 con el método tradicional, dándote control total sobre cada componente.
+Esta guía te llevará paso a paso a través de la creación de un bot de Amazon Lex V2 para una **cafetería** utilizando el método tradicional.
 
 **Características a implementar:**
-*   5 intents creados manualmente
-*   Slots con validación personalizada
+*   5 intents creados manualmente para una cafetería
+*   Slots para tomar pedidos (bebida, tamaño, etc.)
 *   Session context
 *   Fallback inteligente
 *   Respuestas dinámicas con Lambda
@@ -24,7 +24,7 @@ Esta guía te llevará paso a paso a través de la creación de un bot de Amazon
 
 2.  **Método de creación:**
     *   Selecciona **"Create a blank bot"**.
-    *   **Bot name:** `MiChatbot`
+    *   **Bot name:** `MiCafeteriaBot`
     *   **IAM permissions:** Selecciona **"Create a role with basic Amazon Lex permissions"**.
     *   **Children's Online Privacy Protection Act (COPPA):** Selecciona **"No"**.
     *   **Idle session timeout:** Deja el valor predeterminado (5 minutos).
@@ -38,7 +38,7 @@ Esta guía te llevará paso a paso a través de la creación de un bot de Amazon
 
 ### 2. Crear los 5 Intents Manualmente
 
-Ahora crearemos cada una de las 5 intenciones desde cero.
+Ahora crearemos cada una de las 5 intenciones enfocadas en una cafetería.
 
 1.  En el menú de la izquierda, ve a **"Intents"** y haz clic en **"Add intent"** -> **"Add empty intent"**.
 
@@ -47,73 +47,71 @@ Ahora crearemos cada una de las 5 intenciones desde cero.
 *   **Sample utterances (frases de ejemplo):**
     *   `Hola`
     *   `Buenos días`
-    *   `Buenas tardes`
-*   **Initial Response (Respuesta inicial):** Activa esta opción y en el campo de mensaje escribe: `¡Hola! ¿En qué puedo ayudarte hoy?`
+*   **Initial Response (Respuesta inicial):** `¡Hola! Bienvenido a nuestra cafetería. ¿Qué te gustaría ordenar?`
 *   Guarda el intent.
 
-#### Intent 2: `ReservarCita`
-*   **Intent name:** `ReservarCita`
+#### Intent 2: `RealizarPedido`
+*   **Intent name:** `RealizarPedido`
 *   **Sample utterances:**
-    *   `Quiero reservar una cita`
-    *   `Necesito una cita`
-    *   `Agendar una cita para un servicio`
+    *   `Quiero un café`
+    *   `Me gustaría ordenar`
+    *   `Para llevar un latte`
 *   Guarda el intent (añadiremos los slots en el siguiente paso).
 
-#### Intent 3: `CancelarCita`
-*   **Intent name:** `CancelarCita`
+#### Intent 3: `CancelarPedido`
+*   **Intent name:** `CancelarPedido`
 *   **Sample utterances:**
-    *   `Quiero cancelar mi cita`
-    *   `Necesito anular una cita`
-    *   `Cancelar la cita`
+    *   `Quiero cancelar mi orden`
+    *   `Necesito anular mi pedido`
+    *   `Cancelar el café que pedí`
 *   Guarda el intent.
 
-#### Intent 4: `ConsultarEstadoCita`
-*   **Intent name:** `ConsultarEstadoCita`
+#### Intent 4: `ConsultarEstadoPedido`
+*   **Intent name:** `ConsultarEstadoPedido`
 *   **Sample utterances:**
-    *   `Quiero saber el estado de mi cita`
-    *   `¿Cómo va mi cita?`
-    *   `Consultar mi cita`
+    *   `Quiero saber el estado de mi pedido`
+    *   `¿Cómo va mi orden?`
+    *   `¿Ya está listo mi latte?`
 *   Guarda el intent.
 
 #### Intent 5: `Despedida`
 *   **Intent name:** `Despedida`
 *   **Sample utterances:**
     *   `Adiós`
-    *   `Gracias, eso es todo`
-    *   `Hasta luego`
-*   **Closing Response (Respuesta de cierre):** Activa esta opción y en el campo de mensaje escribe: `Gracias por contactarnos. ¡Hasta luego!`
+    *   `Gracias`
+*   **Closing Response (Respuesta de cierre):** `¡Gracias por tu visita! Disfruta tu café.`
 *   Guarda el intent.
 
-### 3. Crear Slots y Slot Types
+### 3. Crear Slots y Slot Types para Pedidos
 
-Ahora añadiremos los campos de información (slots) que el bot necesita recopilar en el intent `ReservarCita`.
+Ahora añadiremos los campos de información (slots) que el bot necesita para tomar un pedido en el intent `RealizarPedido`.
 
-1.  Abre el intent `ReservarCita`.
+1.  Abre el intent `RealizarPedido`.
 2.  Ve a la sección **"Slots"** y haz clic en **"Add slot"**.
 
-#### Slot 1: `TipoServicio` (con un Slot Type personalizado)
-*   **Name:** `TipoServicio`
-*   **Slot type:** Haz clic en `Custom` y luego en **"Create a new slot type"**:
-    *   **Slot type name:** `TiposDeServicio`
-    *   **Slot type values:**
-        *   `Consulta general`
-        *   `Limpieza dental`
-        *   `Examen de la vista`
-    *   Haz clic en **"Save slot type"**.
-*   **Prompts (Preguntas):** `¿Qué tipo de servicio necesitas?`
+#### Slot 1: `TipoBebida` (con un Slot Type personalizado)
+*   **Name:** `TipoBebida`
+*   **Slot type:** Crea un nuevo Slot Type `Custom`:
+    *   **Slot type name:** `TiposDeBebida`
+    *   **Slot type values:** `Latte`, `Cappuccino`, `Americano`, `Espresso`
+    *   **"Save slot type"**.
+*   **Prompts (Preguntas):** `¿Qué bebida te gustaría ordenar?`
 *   Guarda el slot.
 
-#### Slot 2: `FechaCita`
-*   **Name:** `FechaCita`
-*   **Slot type:** Busca y selecciona el tipo predefinido `AMAZON.Date`.
-*   **Prompts:** `¿Para qué fecha deseas la cita?`
+#### Slot 2: `Tamaño` (con un Slot Type personalizado)
+*   **Name:** `Tamaño`
+*   **Slot type:** Crea un nuevo Slot Type `Custom`:
+    *   **Slot type name:** `TamañosBebida`
+    *   **Slot type values:** `Pequeño`, `Mediano`, `Grande`
+    *   **"Save slot type"**.
+*   **Prompts:** `¿En qué tamaño?`
 *   Guarda el slot.
 
-#### Slot 3: `HoraCita`
-*   **Name:** `HoraCita`
-*   **Slot type:** Busca y selecciona el tipo predefinido `AMAZON.Time`.
-*   **Prompts:** `¿A qué hora te gustaría la cita?`
+#### Slot 3: `Leche` (con un Slot Type predefinido)
+*   **Name:** `Leche`
+*   **Slot type:** Usa el tipo predefinido `AMAZON.YesNo`. Esto permite al usuario responder "sí" o "no".
+*   **Prompts:** `¿Lo quieres con leche?`
 *   Guarda el slot.
 
 ---
-*El resto de los pasos (Validaciones, Fallback, Contexto de Sesión, Integración con Lambda, etc.) son idénticos a los de la guía anterior. Esta estructura manual te da la base para luego añadir la lógica avanzada.*
+*El resto de los pasos (Validaciones, Fallback, Contexto de Sesión, Integración con Lambda, etc.) siguen la misma lógica que antes. Ahora tienes una base sólida y contextualizada para el bot de tu cafetería.*
