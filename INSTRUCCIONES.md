@@ -75,10 +75,26 @@ Es hora de probar que todo funciona como se espera.
     *   Escribe un mensaje como: `estou neutro sobre isso`.
     *   **Respuesta esperada (traducida al portugués):** `Entendido. Como posso ajudá-lo?`
 
-### ¿Algo salió mal?
+### ¿Algo salió mal? Solución de Problemas
 
-Si no obtienes la respuesta esperada, puedes depurar revisando los logs:
-*   Ve a la consola de **AWS CloudWatch**.
-*   En el menú de la izquierda, ve a **"Grupos de registros"**.
-*   Busca el grupo de registros de tu función Lambda, que tendrá un nombre como `/aws/lambda/LexV2Orchestrator`.
-*   Dentro, encontrarás los registros de cada ejecución. Podrás ver los `print` que incluimos en el código y cualquier mensaje de error.
+Si al probar el bot, este responde con `La intención FallbackIntent se ha cumplido` (como en la captura de pantalla que compartiste), casi siempre significa que **la función Lambda está fallando** y no puede devolver una respuesta válida a Lex.
+
+Con la última actualización del código, si ocurre un error, la Lambda ahora te responderá: `Lo siento, ocurrió un error inesperado...`. Además, el error exacto quedará registrado en CloudWatch.
+
+Sigue estos pasos para encontrar el error:
+
+1.  **Ve a la Consola de AWS CloudWatch:**
+    *   Puedes ir directamente desde tu función Lambda. Ve a la pestaña **"Monitor"** y haz clic en el botón **"Ver registros de CloudWatch"**.
+
+2.  **Explora los Grupos de Registros (Log Groups):**
+    *   Esto te llevará directamente al grupo de registros de tu función, que se llamará algo como `/aws/lambda/LexV2Orchestrator`.
+
+3.  **Revisa los Flujos de Registro (Log Streams):**
+    *   Haz clic en el flujo de registro más reciente (ordenados por fecha y hora).
+
+4.  **Encuentra el Error:**
+    *   Dentro del registro, busca una línea que comience con `--- ERROR INESPERADO ---`.
+    *   Justo debajo de esa línea, verás el **error exacto** que está ocurriendo en el código (por ejemplo, un problema de permisos, un error de sintaxis, etc.). Este `traceback` es la clave para entender qué está fallando.
+
+**Causa Común: Permisos Faltantes**
+Un error muy común al principio es que al rol de la Lambda le falte algún permiso de IAM para hablar con Translate o Comprehend. Si ves un error como `AccessDeniedException`, asegúrate de que las políticas `TranslateReadOnly` y `ComprehendReadOnly` estén correctamente asociadas al rol de tu función, como se describe en la "Parte 2" de esta guía.
