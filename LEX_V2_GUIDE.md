@@ -1,113 +1,106 @@
-# Guía Completa para Construir un Bot de Amazon Lex V2 (Método Tradicional - Cafetería)
+# Guía Definitiva: Orquestador Inteligente con Lex, Lambda, Comprehend y Translate
 
-Esta guía te llevará paso a paso a través de la creación de un bot de Amazon Lex V2 para una **cafetería**, cubriendo todos los aspectos desde la configuración inicial hasta el despliegue.
+Esta guía te enseñará a construir una solución de chatbot completa y robusta, donde una función de AWS Lambda actúa como un cerebro central (orquestador) que utiliza servicios de IA para ofrecer una experiencia de usuario verdaderamente multilingüe y dinámica.
 
-**Características a implementar:**
-*   5 intents creados manualmente para una cafetería
-*   Slots para tomar pedidos (bebida, tamaño, etc.)
-*   **Fallback inteligente** para manejar incomprensión
-*   **Contexto de Sesión** para recordar datos entre turnos
-*   Respuestas dinámicas con un **orquestador Lambda**
-*   **Soporte multilingüe** (español, inglés, portugués)
-*   **Versiones y alias** para un despliegue seguro
+**Arquitectura de la Solución:**
+1.  **Amazon Lex:** Actúa como la interfaz de conversación (NLU).
+2.  **AWS Lambda:** Es el orquestador central que ejecuta toda la lógica.
+3.  **Amazon Comprehend:** Detecta el idioma del usuario en tiempo real.
+4.  **Amazon Translate:** Traduce las respuestas del bot al idioma del usuario.
 
 ---
 
-## Bloque 1: Configuración Manual del Bot
+## Bloque 1: Configuración de Amazon Lex
 
-*(Esta sección se mantiene igual que la anterior: Crear Bot, Crear los 5 Intents, Crear Slots)*
+*(Esta sección no cambia. Asegúrate de haber completado estos pasos, ya que son la base de nuestro bot).*
 
 ### 1. Crear el Bot (`MiCafeteriaBot`)
-### 2. Crear los 5 Intents Manualmente (`Bienvenida`, `RealizarPedido`, `CancelarPedido`, `ConsultarEstadoPedido`, `Despedida`)
-### 3. Crear Slots y Slot Types para Pedidos (`TipoBebida`, `Tamaño`, `Leche`)
+### 2. Crear los 5 Intents Manualmente
+### 3. Crear Slots y Slot Types para Pedidos
+### 4. Configurar el Fallback Intent
+### 5. Añadir Soporte Multilingüe (Utterances y Prompts en ES, EN, PT)
 
 ---
 
-## Bloque 2: Lógica de Negocio con AWS Lambda
+## Bloque 2: Creación del Orquestador Inteligente en AWS Lambda
 
-*(Esta sección se mantiene igual: Crear Lambda, Configurar Permisos, Conectar Lambda a Lex)*
+Aquí es donde construiremos el cerebro de nuestro bot. Reemplazaremos la lógica anterior con una nueva, mucho más potente.
 
-### 4. Crear la Función Lambda (`ProcesarPedidoCafeteria`)
-### 5. Configurar los Permisos
-### 6. Conectar Lambda a los Intents en Lex
-    *   **Importante:** Conecta la función Lambda a **todos los intents** que requieran una respuesta dinámica (`Bienvenida`, `RealizarPedido`, `CancelarPedido`, `ConsultarEstadoPedido`, `Despedida`), no solo a `RealizarPedido`.
+### 6. Crear la Función Lambda
 
----
+1.  **Abrir la consola de AWS Lambda:**
+    *   Ve a la consola de AWS y busca "Lambda".
+    *   Haz clic en **"Create function"**.
+2.  **Configuración de la función:**
+    *   **"Author from scratch"** (Crear desde cero).
+    *   **Function name:** `OrquestadorInteligenteCafeteria`
+    *   **Runtime:** `Node.js 18.x`
+    *   **Architecture:** `x86_64`
+    *   Haz clic en **"Create function"**.
 
-## Bloque 3: Funcionalidades Avanzadas y Despliegue
+### 7. Añadir el Código del Orquestador
 
-### 7. Configurar el Fallback Intent (Fallback Inteligente)
+1.  **Configurar como Módulo ES:**
+    *   En la pestaña **"Code"** de tu Lambda, busca el archivo `package.json`.
+    *   Añade la siguiente línea dentro de las llaves `{}`: `"type": "module",`
+    *   Guarda el archivo. Esto es necesario para usar la sintaxis `import` del nuevo AWS SDK v3.
+2.  **Pegar el código:**
+    *   Vuelve al archivo `index.mjs` (puede que tengas que renombrarlo de `.js` a `.mjs`).
+    *   Borra todo el contenido de ejemplo.
+    *   Copia el código completo del archivo `lambda_function.js` que te proporcioné (el que incluye Comprehend y Translate) y pégalo aquí.
+    *   Haz clic en **"Deploy"** para guardar.
 
-Esto se activa cuando Lex no entiende al usuario.
+### 8. Configurar los Permisos de IAM (¡Paso Crítico!)
 
-1.  En el menú de la izquierda de la consola de Lex, busca y haz clic en **"Fallback intent"**.
-2.  En la sección **"Closing response"**, añade un mensaje amigable:
-    *   `Lo siento, no te he entendido. Puedes pedir un café, cancelar un pedido o preguntar por el estado de tu orden.`
-3.  **Opcional:** Puedes conectar una Lambda aquí para registrar las frases que el bot no entendió y así poder mejorarlo en el futuro.
-4.  Haz clic en **"Save intent"**.
+Nuestra Lambda ahora necesita "hablar" con Lex, Comprehend y Translate. Debemos darle los permisos necesarios.
 
-### 8. Usar el Contexto de Sesión (Session Context)
+1.  **Ir a la configuración de IAM:**
+    *   En tu función Lambda, ve a la pestaña **"Configuration"** -> **"Permissions"**.
+    *   Haz clic en el nombre del **"Role name"** (rol de ejecución). Esto te abrirá la consola de IAM en una nueva pestaña.
+2.  **Añadir Políticas de Permisos:**
+    *   En la página del rol, haz clic en el botón **"Add permissions"** -> **"Attach policies"**.
+    *   Busca y añade las siguientes tres políticas de AWS, una por una:
+        1.  `AWSLambdaBasicExecutionRole` (normalmente ya está)
+        2.  `AmazonLexRunBotsOnly`
+        3.  `ComprehendReadOnly`
+        4.  `TranslateReadOnly`
+    *   Al final, deberías tener estas cuatro políticas adjuntas a tu rol.
 
-El contexto de sesión permite al bot "recordar" información entre diferentes intents. Vamos a usarlo para que `ConsultarEstadoPedido` recuerde el ID del último pedido.
+### 9. Conectar y Configurar el Bot en Lex
 
-1.  **Revisa el código de Lambda:**
-    *   En `lambda_function.js`, dentro del intent `realizarPedido`, ya hemos añadido una línea que guarda el ID del pedido en los atributos de sesión:
-        ```javascript
-        const sessionAttributes = {
-            lastOrderId: orderId.toString()
-        };
-        ```
-    *   En el intent `consultarEstadoPedido`, el código ya busca este atributo:
-        ```javascript
-        const sessionAttributes = intentRequest.sessionState.sessionAttributes || {};
-        const lastOrderId = sessionAttributes.lastOrderId;
-        ```
-2.  **No se requiere configuración adicional en Lex:** La gestión de los atributos de sesión se maneja completamente desde el código de Lambda, haciendo el flujo de conversación más inteligente y conectado.
-
-### 9. Añadir Soporte Multilingüe
-
-Para que tu bot funcione en inglés y portugués, debes traducir tus configuraciones.
-
-1.  En la consola de Lex, en la parte superior del menú de la izquierda, verás un desplegable de idiomas. Cambia de `Spanish (ES)` a `English (US)`.
-2.  **Traduce todo:**
-    *   **Intents:** Para cada intent, ve y añade "Sample utterances" en inglés.
-    *   **Slots:** En el intent `RealizarPedido`, edita cada slot y traduce los "Prompts" (las preguntas que hace el bot).
-    *   **Slot Types:** Si tienes valores de slot (como `Latte`, `Grande`), puedes añadir sinónimos o dejarlos igual si son universales.
-3.  Repite el proceso para `Portuguese (BR)`.
-4.  **Recuerda construir el bot (`Build`)** después de añadir las traducciones para cada idioma.
-
-### 10. Crear Versiones y Alias para Despliegue
-
-Nunca debes exponer tu versión de desarrollo directamente a los usuarios.
-
-1.  **Crear una Versión (una foto inmutable de tu bot):**
-    *   Una vez que hayas probado tu bot y estés contento con los cambios, ve a **"Bot versions"** en el menú de la izquierda.
-    *   Haz clic en **"Create version"**. Lex creará una versión numerada (ej. `1`).
-
-2.  **Crear un Alias (un puntero a una versión):**
-    *   Los alias te permiten cambiar la versión que usan tus usuarios sin tener que cambiar la configuración en tu aplicación cliente.
-    *   Ve a **"Aliases"**. Verás el `TestBotAlias` que se usa para pruebas.
-    *   Haz clic en **"Create alias"**.
-    *   **Alias name:** `Produccion`
-    *   **Associate with a version:** Selecciona la Versión `1` que acabas de crear.
-    *   **"Create"**.
-
-3.  **Flujo de trabajo:**
-    *   **Desarrollo:** Sigue haciendo cambios en la versión "Draft" (borrador) y prueba con el `TestBotAlias`.
-    *   **Despliegue:** Cuando estés listo para actualizar, crea una nueva **versión** (ej. `2`) y luego edita tu alias `Produccion` para que apunte a esa nueva versión.
+1.  **Regresa a la consola de Amazon Lex**.
+2.  **Conectar la Lambda:**
+    *   Para **todos tus intents** (`Bienvenida`, `RealizarPedido`, etc.), ve a la sección **"Fulfillment"**, activa **"Use a Lambda function"** y selecciona tu nueva función `OrquestadorInteligenteCafeteria`.
+    *   Asegúrate de que la opción para **"initialization and validation"** también esté activa en el intent `RealizarPedido`.
+3.  **Aumentar el Timeout:**
+    *   Las llamadas a servicios de IA pueden tardar un poco más. Para evitar errores, es bueno aumentar el timeout.
+    *   En la consola de Lambda, ve a **"Configuration"** -> **"General configuration"** -> **"Edit"**.
+    *   Ajusta el **"Timeout"** a `10` segundos.
+4.  **¡Guardar, Construir y Probar!**
+    *   Guarda todos los intents en Lex.
+    *   Haz clic en **"Build"** para compilar todos los cambios.
 
 ---
 
-### 11. Probar el Bot de Forma Integral
+## Bloque 3: Pruebas y Despliegue
 
-Ahora que todo está configurado, usa la ventana de **"Test"** y prueba los flujos completos:
+### 10. Probar la Lógica Multilingüe
 
-*   **Pedido y consulta:**
-    1.  `"Quiero un latte mediano"`
-    2.  (El bot te pide el resto de datos y confirma con un ID de pedido).
-    3.  `"Cómo va mi orden?"` (El bot debería usar el contexto de sesión para dar el estado de ese pedido).
-*   **Fallback:**
-    1.  `"Cuánto cuesta el café?"` (El bot no fue entrenado para esto).
-    2.  Debería responder con el mensaje del Fallback Intent.
+Usa la ventana de **"Test"** en la consola de Lex para verificar que todo funciona.
 
-¡Felicidades! Has construido un bot de Amazon Lex V2 completo, robusto y listo para producción.
+*   **Prueba en Inglés:**
+    *   **Tú:** `I want to order a large cappuccino with milk`
+    *   **Bot (respuesta traducida):** `Order confirmed! You have ordered a Cappuccino size Grande with milk. Your order number is [1234].`
+*   **Prueba en Portugués:**
+    *   **Tú:** `Gostaria de um americano pequeno sem leite`
+    *   **Bot (respuesta traducida):** `Pedido confirmado! Você pediu um Americano tamanho Pequeno sem leite. O número do seu pedido é [5678].`
+*   **Prueba de Contexto de Sesión (en cualquier idioma):**
+    1.  Completa un pedido.
+    2.  **Tú:** `What's the status of my order?`
+    3.  **Bot (traducido):** `The status of your last order ([5678]) is: In preparation. It will be ready in a couple of minutes!`
+
+### 11. Crear Versiones y Alias
+
+*(Esta sección no cambia. Sigue el mismo proceso para crear una versión inmutable y un alias de `Produccion` para apuntar a ella, asegurando un ciclo de despliegue seguro).*
+
+¡Felicidades! Has construido un orquestador de IA verdaderamente avanzado, capaz de entender y responder a los usuarios en su propio idioma, manteniendo al mismo tiempo una lógica de negocio centralizada y fácil de mantener.
