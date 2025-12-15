@@ -6,7 +6,7 @@ import os
 import mimetypes
 
 # Configuración
-BUCKET_NAME = 'chatbot-frontend-655765967000-us-east-1'
+BUCKET_NAME = 'chatbot-inteligente-frontend-655765967000-us-east-1'
 DIST_DIR = 'frontend/dist'
 
 def get_content_type(filepath):
@@ -36,8 +36,8 @@ def upload_directory(local_dir, bucket):
                 ExtraArgs={'ContentType': content_type}
             )
     
-    print(f"\n✓ Frontend subido exitosamente a s3://{bucket}")
-    print(f"✓ URL: https://d27rk2puv32emi.cloudfront.net")
+    print(f"\n[OK] Frontend subido exitosamente a s3://{bucket}")
+    print(f"[LINK] URL: https://d35qw9heb4voc2.cloudfront.net")
 
 if __name__ == '__main__':
     upload_directory(DIST_DIR, BUCKET_NAME)

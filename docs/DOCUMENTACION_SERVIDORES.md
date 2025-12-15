@@ -1,4 +1,4 @@
-# 📚 Documentación Técnica Completa - Chatbot Inteligente AWS
+# 📚 Documentación Técnica Completa - TostiCafé Chatbot Inteligente
 
 > **Documento Educativo para Curso de Servidores**  
 > Este documento explica en detalle cada servicio AWS utilizado, cómo funcionan, cómo se relacionan, y el flujo de datos completo del sistema.
@@ -39,27 +39,7 @@ Este proyecto implementa un **chatbot conversacional inteligente** que utiliza m
 
 ### Diagrama de Arquitectura General
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              FLUJO DE MENSAJES                                   │
-│                                                                                  │
-│   Usuario ──► Frontend (S3+CloudFront) ──► API Gateway (WebSocket)              │
-│                                                   │                              │
-│                                                   ▼                              │
-│                                        Lambda Orquestador                        │
-│                                    ┌───────┬───────┬───────┐                     │
-│                                    │       │       │       │                     │
-│                                    ▼       ▼       ▼       ▼                     │
-│                              Comprehend   Lex  Translate  Bedrock               │
-│                              (Sentimiento)(Intent)(Idioma) (IA)                  │
-│                                    │       │       │       │                     │
-│                                    └───────┴───────┴───────┘                     │
-│                                              │                                   │
-│                                              ▼                                   │
-│                                          DynamoDB                                │
-│                                    (Historial + Analytics)                       │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
+![Diagrama de Arquitectura](./img/diagrama_arquitectura.png)
 
 ---
 
@@ -115,7 +95,7 @@ El sistema está organizado en **4 capas principales**:
 
 // 1. Crear bucket S3 para archivos estáticos
 const websiteBucket = new s3.Bucket(this, 'WebsiteBucket', {
-    bucketName: `chatbot-frontend-${cdk.Aws.ACCOUNT_ID}`,
+    bucketName: `chatbot-inteligente-frontend-${cdk.Aws.ACCOUNT_ID}`,
     blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,  // Seguridad
     encryption: s3.BucketEncryption.S3_MANAGED,          // Encriptación
 });
@@ -288,7 +268,7 @@ this.orchestratorFunction = new lambda.Function(this, 'OrchestratorFunction', {
     layers: [sharedLayer],                    // Dependencias compartidas
     environment: {                            // Variables de entorno
         CONVERSATIONS_TABLE: props.conversationsTable.tableName,
-        LEX_BOT_ID: 'X3ADVBRCTQ',
+        LEX_BOT_ID: 'X2LPJ7ULSY',  // Bot TostiCafé
         LEX_BOT_ALIAS_ID: '9VQMVYGAGE',
     },
 });
@@ -506,9 +486,12 @@ class BedrockClient:
         """Genera respuesta usando DeepSeek R1."""
         
         # Mensaje del sistema define el comportamiento del bot
-        system_msg = """Eres un asistente virtual amable para una tienda en linea.
-Responde de forma breve y directa (1-2 oraciones maximo).
-Se util, empatico y profesional."""
+        system_msg = """Eres el asistente virtual de TostiCafé.
+Tu misión es ayudar a los clientes con el menú, horarios y pedidos.
+IMPORTANTE: Detecta el idioma del usuario (Español o Portugués) y responde SIEMPRE en ese mismo idioma.
+Si el usuario habla en Español, responde en Español.
+Si el usuario habla en Portugués, responde en Portugués.
+Responde de forma breve, útil y profesional."""
         
         body = {
             "messages": [

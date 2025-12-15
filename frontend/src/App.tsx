@@ -10,26 +10,26 @@ function App() {
             {/* Landing Page */}
             <header className="hero">
                 <div className="hero-content">
-                    <div className="hero-badge">🤖 AI Powered</div>
+                    <div className="hero-badge">☕ 100% Café de Betulia</div>
                     <h1 className="hero-title">
-                        Chatbot <span className="gradient-text">Inteligente</span>
+                        Tosti<span style={{ color: 'var(--accent-color)' }}>Café</span>
                     </h1>
-                    <p className="hero-subtitle">
-                        Asistente virtual con NLP y Machine Learning.
-                        Soporte multi-idioma en Español, Inglés y Portugués.
+                    <p className="hero-subtitle" style={{ color: '#f0f0f0', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                        El auténtico sabor de nuestras montañas.
+                        Disfruta del mejor café de origen mientras conversas con nuestro asistente inteligente.
                     </p>
                     <div className="hero-features">
                         <div className="feature">
-                            <span className="feature-icon">🧠</span>
-                            <span>Comprensión Natural</span>
+                            <span className="feature-icon">🌿</span>
+                            <span>Origen Natural</span>
+                        </div>
+                        <div className="feature">
+                            <span className="feature-icon">🍪</span>
+                            <span>Repostería</span>
                         </div>
                         <div className="feature">
                             <span className="feature-icon">💬</span>
-                            <span>Análisis de Sentimiento</span>
-                        </div>
-                        <div className="feature">
-                            <span className="feature-icon">🌍</span>
-                            <span>Multi-idioma</span>
+                            <span>Pedidos AI</span>
                         </div>
                     </div>
                     <button
@@ -42,16 +42,16 @@ function App() {
                 </div>
                 <div className="hero-visual">
                     <div className="floating-card card-1">
-                        <span className="card-emoji">👋</span>
-                        <span>¡Hola! ¿En qué puedo ayudarte?</span>
+                        <span className="card-emoji">☕</span>
+                        <span>¡Quiero un capuchino!</span>
                     </div>
                     <div className="floating-card card-2">
-                        <span className="card-emoji">📊</span>
-                        <span>Sentiment: Positivo</span>
+                        <span className="card-emoji">🕒</span>
+                        <span>¿A qué hora abren?</span>
                     </div>
                     <div className="floating-card card-3">
-                        <span className="card-emoji">🌐</span>
-                        <span>ES • EN • PT</span>
+                        <span className="card-emoji">🛵</span>
+                        <span>¿Tienen domicilios?</span>
                     </div>
                 </div>
             </header>
